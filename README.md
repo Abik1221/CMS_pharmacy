@@ -1,88 +1,96 @@
 # CMS_pharmacy
 This is a content management system backend infrastructure build using golang for Pharmacy in Africa.
 
-## The entire proper folder structure is the fallowing.
+## The entire proper folder structure is the fallowing
 
-/cmd/
-├── main.go                 # Starts the Gin server
-├── migrate/
-│   └── main.go             # (Optional) Go-based runner for migrations
+# Pharmacy Management System - Backend
 
-/config/
-├── config.go               # App configs (env, port, keys)
-├── db.go                   # DB initialization (GORM)
-├── env.go                  # Load .env variables
+A structured Go backend project using Gin and GORM, following Clean Architecture principles.
 
-/internal/
-├── auth/                   # Authentication logic
-│   ├── handler.go          # Login, register controllers
-│   ├── service.go          # Auth business logic
-│   ├── jwt.go              # JWT generation and parsing
-│   └── middleware.go       # Auth and role-based access middleware
+## Project Structure
 
-├── user/                   # User and role management
-│   ├── handler.go
-│   ├── service.go
-│   ├── repository.go
-│   └── model.go
+### `/cmd/`
+- **Main Application**
+  - `main.go` - Starts the Gin server
+- **Migrations Runner**
+  - `/migrate/main.go` - Optional Go-based runner for DB migrations
 
-├── pharmacy/               # Pharmacy-specific features
-│   ├── handler.go          # Inventory, medicine, reports
-│   ├── service.go
-│   ├── repository.go
-│   └── model.go
+### `/config/`
+- Configuration Management
+  - `config.go` - App configuration (env, port, keys)
+  - `db.go` - GORM DB initialization
+  - `env.go` - Loads .env variables
 
-├── cashier/                # Cashier-specific functionality
-│   ├── handler.go
-│   ├── service.go
-│   ├── repository.go
-│   └── model.go
+### `/internal/`
+#### Core Application Components
 
-├── subscription/           # Subscription plans, payments
-│   ├── handler.go
-│   ├── service.go
-│   ├── payment.go          # Stripe or Chapa integration
-│   ├── repository.go
-│   └── model.go
+- **Authentication** (`/auth/`)
+  - `handler.go` - Login/register handlers
+  - `service.go` - Auth business logic
+  - `jwt.go` - JWT generation & parsing
+  - `middleware.go` - Auth + RBAC middleware
 
-├── chatbot/                # MedChatbot logic (Premium only)
-│   ├── handler.go
-│   ├── service.go
-│   └── integration.go
+- **User Management** (`/user/`)
+  - `handler.go` - User endpoints
+  - `service.go` - User business logic
+  - `repository.go` - Database operations
+  - `model.go` - Data models
 
-├── patient/                # Patient and prescription management
-│   ├── handler.go
-│   ├── service.go
-│   ├── repository.go
-│   └── model.go
+- **Pharmacy Operations** (`/pharmacy/`)
+  - `handler.go` - Inventory, medicines, reports
+  - `service.go` - Business logic
+  - `repository.go` - Data access
+  - `model.go` - Domain models
 
-├── analytics/              # Advanced reporting and dashboards
-│   ├── handler.go
-│   ├── service.go
-│   └── model.go
+- **Cashier System** (`/cashier/`)
+  - `handler.go` - Transaction endpoints
+  - `service.go` - Sales logic
+  - `repository.go` - Data operations
+  - `model.go` - Data structures
 
-├── routes/                 # Central route registration
-│   └── routes.go
+- **Subscriptions** (`/subscription/`)
+  - `handler.go` - Plan management
+  - `service.go` - Subscription logic
+  - `payment.go` - Stripe/Chapa integration
+  - `repository.go` - Data layer
+  - `model.go` - Subscription models
 
-/migrations/                # SQL-based migrations
-├── 001_create_users.up.sql
-├── 001_create_users.down.sql
-├── 002_create_pharmacies.up.sql
-├── ...
-└── README.md               # Docs for how to run migrations
+- **Chatbot** (`/chatbot/`)
+  - `handler.go` - Chat endpoints
+  - `service.go` - Bot logic
+  - `integration.go` - External service integration
 
-/pkg/
-├── jwt/                    # JWT utilities for token signing/parsing
-│   └── jwt.go
-├── logger/                 # Custom logger (e.g., Zap or Logrus)
-│   └── logger.go
-├── utils/                  # Utility functions (string helpers, etc.)
-│   └── helpers.go
+- **Patient Management** (`/patient/`)
+  - `handler.go` - Patient endpoints
+  - `service.go` - Prescription logic
+  - `repository.go` - Data access
+  - `model.go` - Patient models
 
-/public/                    # Static files (e.g., Swagger docs, uploads)
+- **Analytics** (`/analytics/`)
+  - `handler.go` - Reports endpoints
+  - `service.go` - Analytics logic
+  - `model.go` - Data models
 
-/docs/                      # API and system documentation (Swagger)
-/tests/                     # Unit and integration tests
-/go.mod
-/go.sum
-/.env                       # Environment variables
+- **Routing** (`/routes/`)
+  - `routes.go` - Registers all API endpoints
+
+### `/migrations/`
+- Database Schema Management
+  - SQL migration files (e.g., `001_create_users.up.sql`)
+  - `README.md` - Migration instructions
+
+### `/pkg/`
+- Shared Utilities
+  - **JWT** (`/jwt/jwt.go`) - Token utilities
+  - **Logging** (`/logger/logger.go`) - Custom logger
+  - **Utilities** (`/utils/helpers.go`) - Common helpers
+
+### Supporting Directories
+- `/public/` - Static files (Swagger docs, uploads)
+- `/docs/` - API documentation & specs
+- `/tests/` - Unit & integration tests
+
+## Root Files
+- `.env` - Environment variables
+- `go.mod` - Go dependencies
+- `go.sum` - Dependency checksums
