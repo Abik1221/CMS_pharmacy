@@ -14,7 +14,7 @@ A structured Go backend project using Gin and GORM, following Clean Architecture
 
 ### `/cmd/`
 - **Main Application**
-  - `main.go` - Starts the Gin server
+  - `main.go` - Starts the Gin http server
 - **Migrations Runner**
   - `/migrate/main.go` - Optional Go-based runner for DB migrations
 
