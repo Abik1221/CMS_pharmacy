@@ -1,6 +1,9 @@
 # CMS_pharmacy
 This is a content management system backend infrastructure build using golang for Pharmacy in Africa.
 
+This system is currently on its way to be patanted! Copying or ownng will gonna make you Punished.
+
+
 ## The entire proper folder structure is the fallowing
 
 # Pharmacy Management System - Backend
@@ -94,3 +97,4 @@ A structured Go backend project using Gin and GORM, following Clean Architecture
 - `.env` - Environment variables
 - `go.mod` - Go dependencies
 - `go.sum` - Dependency checksums
+
