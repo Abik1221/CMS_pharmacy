@@ -4,46 +4,33 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 
-	"pharmacy_cms/config"
-	"pharmacy_cms/internal/routes"
+	"github.com/your_project/config"
+	"github.com/your_project/internal/routes"
 )
 
 func main() {
-	// Load .env variables
-	
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	// Load environment variables from .env file (optional but recommended)
+	if err := godotenv.Load(); err != nil {
+		log.Println("⚠️  No .env file found. Using system environment variables.")
 	}
 
-	// Initialize DB
-	db := config.InitDB()
-	defer func() {
-		sqlDB, _ := db.DB()
-		sqlDB.Close()
-	}()
+	// Connect to the database
+	config.ConnectDB()
 
-	// Set Gin to release mode in production
-	if os.Getenv("GIN_MODE") == "release" {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
-	// Create Gin router
+	// Initialize Gin router
 	router := gin.Default()
 
-	// Register routes
-	routes.RegisterRoutes(router, db)
+	// Register all routes
+	routes.RegisterRoutes(router)
 
-	// Start server
+	// Start server on specified port
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8080" // fallback default port
 	}
-	log.Printf("Server running on port %s...", port)
-	if err := router.Run(":" + port); err != nil {
-		log.Fatalf("server failed to be started : %s", err)
-	}
+	log.Printf("🚀 Server running at http://localhost:%s", port)
+	router.Run(":" + port)
 }

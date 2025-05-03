@@ -9,87 +9,83 @@ import (
 )
 
 type AuthHandler struct {
-	userService user.UserService
-	jwtService  jwt.JWTService
+	userService *user.Service
+	jwtService  *jwt.JWTService
 }
 
-func NewAuthHandler(userService user.UserService, jwtService jwt.JWTService) *AuthHandler {
-	return &AuthHandler{userService, jwtService}
+func NewAuthHandler(userService *user.Service, jwtService *jwt.JWTService) *AuthHandler {
+	return &AuthHandler{
+		userService: userService,
+		jwtService:  jwtService,
+	}
 }
 
-type RegisterRequest struct {
-	Name     string `json:"name" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-	Role     string `json:"role" binding:"required"`
-}
-
-type LoginRequest struct {
+// LoginPayload defines the expected body for login
+type LoginPayload struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
 
-// POST /api/auth/register
+// RegisterPayload defines the expected body for registration
+type RegisterPayload struct {
+	Name     string     `json:"name" binding:"required"`
+	Email    string     `json:"email" binding:"required,email"`
+	Password string     `json:"password" binding:"required,min=6"`
+	Phone    string     `json:"phone" binding:"required"`
+	Role     user.Role  `json:"role" binding:"required"`
+}
+
+// Register handles user registration
 func (h *AuthHandler) Register(c *gin.Context) {
-	var req RegisterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	var payload RegisterPayload
+	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	user, err := h.userService.Register(user.RegisterInput{
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: req.Password,
-		Role:     req.Role,
-	})
-	if err != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+	newUser := user.User{
+		Name:     payload.Name,
+		Email:    payload.Email,
+		Password: payload.Password,
+		Phone:    payload.Phone,
+		Role:     payload.Role,
+	}
+
+	if err := h.userService.CreateUser(&newUser); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	token, err := h.jwtService.GenerateToken(user.ID, user.Role)
+	c.JSON(http.StatusCreated, gin.H{"message": "user registered successfully"})
+}
+
+// Login handles user login
+func (h *AuthHandler) Login(c *gin.Context) {
+	var payload LoginPayload
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := h.userService.Login(payload.Email, payload.Password)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
+		return
+	}
+
+	token, err := h.jwtService.GenerateToken(user.ID, string(user.Role))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "User registered successfully",
-		"user":    user,
-		"token":   token,
-	})
-}
-
-// POST /api/auth/login
-func (h *AuthHandler) Login(c *gin.Context) {
-	var req LoginRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	user, err := h.userService.GetByEmail(req.Email)
-	if err != nil || user == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		return
-	}
-
-	err = h.userService.ComparePassword(user.Password, req.Password)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		return
-	}
-
-	token, err := h.jwtService.GenerateToken(user.ID, user.Role)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "token generation failed"})
-		return
-	}
-
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Login successful",
-		"user":    user,
-		"token":   token,
+		"token": token,
+		"user": gin.H{
+			"id":    user.ID,
+			"name":  user.Name,
+			"email": user.Email,
+			"role":  user.Role,
+		},
 	})
 }
