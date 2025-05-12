@@ -27,12 +27,12 @@ func RequireRoles(allowedRoles ...string) gin.HandlerFunc {
 			}
 		}
 
-		// if !roleValid {
-		// 	c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to access this resource"})
-		// 	c.Abort()
-		// 	return
-		// }
+		if !roleValid {
+			c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to access this resource"})
+			c.Abort()
+			return
+		}
 
-		// c.Next()
+		c.Next()
 	}
 }
